@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeZone - ร้านนาฬิกาออนไลน์</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #764ba2;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #764ba2;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 100px 2rem 2rem;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease 0.4s both;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+        }
+
+        .watch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .watch-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .watch-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .watch-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .watch-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .watch-price {
+            font-size: 1.5rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .watch-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            height: 0;
+            margin: 2rem 0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 2rem 0;
+            border-radius: 15px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .contact-form {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .watch-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">⌚ TimeZone</a>
+            <div class="nav-links">
+                <span class="nav-link active" onclick="showPage('home')">หน้าแรก</span>
+                <span class="nav-link" onclick="showPage('products')">สินค้า</span>
+                <span class="nav-link" onclick="showPage('about')">เกี่ยวกับเรา</span>
+                <span class="nav-link" onclick="showPage('services')">บริการ</span>
+                <span class="nav-link" onclick="showPage('gallery')">แกลเลอรี่</span>
+                <span class="nav-link" onclick="showPage('contact')">ติดต่อ</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- หน้าแรก -->
+    <div id="home" class="page active">
+        <div class="container">
+            <div class="hero">
+                <h1>ยินดีต้อนรับสู่ TimeZone</h1>
+                <p>คอลเลกชันนาฬิกาหรูและสไตล์ที่จะเปลี่ยนแปลงชีวิตคุณ</p>
+                <a href="#" class="cta-button" onclick="showPage('products')">ดูสินค้า</a>
+            </div>
+
+            <div class="video-container">
+                <video controls autoplay muted loop>
+                    <source src="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" type="video/mp4">
+                    เบราว์เซอร์ของคุณไม่รองรับการเล่นวิดีโอ
+                </video>
+            </div>
+
+            <audio class="audio-player" controls autoplay loop>
+                <source src="https://www.soundjay.com/misc/sounds/bell-ringing-05.wav" type="audio/wav">
+                เบราว์เซอร์ของคุณไม่รองรับการเล่นเสียง
+            </audio>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">⌚</div>
+                    <h3>คุณภาพระดับพรีเมี่ยม</h3>
+                    <p>นาฬิกาทุกเรือนผ่านการคัดสรรอย่างดี</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🚚</div>
+                    <h3>จัดส่งฟรีทั่วไทย</h3>
+                    <p>จัดส่งฟรีสำหรับยอดซื้อตั้งแต่ 1,000 บาท</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>รับประกัน 2 ปี</h3>
+                    <p>รับประกันคุณภาพและซ่อมฟรีนาน 2 ปี</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าสินค้า -->
+    <div id="products" class="page">
+        <div class="container">
+            <h2 class="section-title">คอลเลกชันนาฬิกา</h2>
+            <div class="watch-grid">
+                <div class="watch-card" onclick="openModal('watch1')">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400')"></div>
+                    <div class="watch-name">Rolex Submariner</div>
+                    <div class="watch-price">฿285,000</div>
+                    <div class="watch-description">นาฬิกาดำน้ำระดับมืออาชีพ กันน้ำลึกถึง 300 เมตร</div>
+                </div>
+
+                <div class="watch-card" onclick="openModal('watch2')">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1594576662277-4a8b88b7509a?w=400')"></div>
+                    <div class="watch-name">Omega Speedmaster</div>
+                    <div class="watch-price">฿195,000</div>
+                    <div class="watch-description">นาฬิกาที่ไปถึงดวงจันทร์ คลาสสิกไม่มีวันล้าสมัย</div>
+                </div>
+
+                <div class="watch-card" onclick="openModal('watch3')">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1548068890-4f099d7bb1a3?w=400')"></div>
+                    <div class="watch-name">TAG Heuer Carrera</div>
+                    <div class="watch-price">฾145,000</div>
+                    <div class="watch-description">นาฬิกาสปอร์ตหรูสำหรับคนรักความเร็ว</div>
+                </div>
+
+                <div class="watch-card" onclick="openModal('watch4')">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1533139502658-0198f920d8e8?w=400')"></div>
+                    <div class="watch-name">Seiko Prospex</div>
+                    <div class="watch-price">฿25,000</div>
+                    <div class="watch-description">นาฬิกาดำน้ำญี่ปุ่น คุณภาพเยี่ยมในราคาสมเหตุสมผล</div>
+                </div>
+
+                <div class="watch-card" onclick="openModal('watch5')">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=400')"></div>
+                    <div class="watch-name">Apple Watch Ultra</div>
+                    <div class="watch-price">฿32,900</div>
+                    <div class="watch-description">สมาร์ทวอทช์ระดับพรีเมี่ยมสำหรับไลฟ์สไตล์แอคทีฟ</div>
+                </div>
+
+                <div class="watch-card" onclick="openModal('watch6')">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400')"></div>
+                    <div class="watch-name">Casio G-Shock</div>
+                    <div class="watch-price">฿8,500</div>
+                    <div class="watch-description">นาฬิกาดิจิทัลแกร่ง ทนทานต่อแรงกระแทก</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าเกี่ยวกับเรา -->
+    <div id="about" class="page">
+        <div class="container">
+            <h2 class="section-title">เกี่ยวกับเรา</h2>
+            <div style="background: rgba(255,255,255,0.95); padding: 3rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <h3 style="color: #764ba2; margin-bottom: 2rem; font-size: 2rem;">ประวัติความเป็นมา</h3>
+                <p style="line-height: 1.8; font-size: 1.1rem; margin-bottom: 2rem;">
+                    TimeZone ก่อตั้งขึ้นในปี 2015 ด้วยความมุ่งมั่นที่จะนำเสนอนาฬิกาคุณภาพสูงให้กับลูกค้าชาวไทย 
+                    เราเชื่อว่านาฬิกาไม่ใช่แค่เครื่องบอกเวลา แต่เป็นเครื่องประดับที่สะท้อนบุคลิกภาพและสไตล์ของผู้สวมใส่
+                </p>
+                <p style="line-height: 1.8; font-size: 1.1rem; margin-bottom: 2rem;">
+                    ด้วยประสบการณ์กว่า 8 ปีในธุรกิจนาฬิกา เราได้สร้างเครือข่ายกับแบรนด์ชั้นนำทั่วโลก 
+                    เพื่อให้มั่นใจว่าสินค้าทุกชิ้นที่เราจำหน่ายล้วนแท้และมีคุณภาพระดับโลก
+                </p>
+                <p style="line-height: 1.8; font-size: 1.1rem;">
+                    ปัจจุบันเรามีลูกค้ามากกว่า 50,000 คน และยังคงเติบโตอย่างต่อเนื่อง 
+                    เพราะเราให้ความสำคัญกับคุณภาพสินค้าและการบริการลูกค้าเป็นอย่างสูง
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าบริการ -->
+    <div id="services" class="page">
+        <div class="container">
+            <h2 class="section-title">บริการของเรา</h2>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🔧</div>
+                    <h3>บริการซ่อมนาฬิกา</h3>
+                    <p>ทีมช่างผู้เชี่ยวชาญพร้อมซ่อมแซมนาฬิกาทุกยี่ห้อ</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💎</div>
+                    <h3>ตรวจสอบความแท้</h3>
+                    <p>บริการตรวจสอบความแท้ของนาฬิกาฟรี</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎁</div>
+                    <h3>บริการห่อของขวัญ</h3>
+                    <p>บริการห่อของขวัญสวยงามสำหรับโอกาสพิเศษ</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📦</div>
+                    <h3>จัดส่งด่วนพิเศษ</h3>
+                    <p>บริการจัดส่งด่วนภายใน 24 ชั่วโมง</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💳</div>
+                    <h3>ผ่อนชำระ 0%</h3>
+                    <p>รับบัตรเครดิตทุกธนาคาร ผ่อน 0% นานสูงสุด 10 เดือน</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🏪</div>
+                    <h3>บริการหลังการขาย</h3>
+                    <p>บริการดูแลลูกค้าหลังการขาย 24/7</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าแกลเลอรี่ -->
+    <div id="gallery" class="page">
+        <div class="container">
+            <h2 class="section-title">แกลเลอรี่</h2>
+            <div class="watch-grid">
+                <div class="watch-card">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=400')"></div>
+                    <div class="watch-name">Luxury Collection</div>
+                </div>
+                <div class="watch-card">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1609587312208-cea54be969e7?w=400')"></div>
+                    <div class="watch-name">Sport Series</div>
+                </div>
+                <div class="watch-card">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1611986128123-c2d7d0b6b0b3?w=400')"></div>
+                    <div class="watch-name">Classic Edition</div>
+                </div>
+                <div class="watch-card">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=400')"></div>
+                    <div class="watch-name">Digital Smart</div>
+                </div>
+                <div class="watch-card">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1539874754764-5a96559808b9?w=400')"></div>
+                    <div class="watch-name">Vintage Style</div>
+                </div>
+                <div class="watch-card">
+                    <div class="watch-image" style="background-image: url('https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400')"></div>
+                    <div class="watch-name">Modern Design</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าติดต่อ -->
+    <div id="contact" class="page">
+        <div class="container">
+            <h2 class="section-title">ติดต่อเรา</h2>
+            <div class="contact-form">
+                <h3 style="text-align: center; margin-bottom: 2rem; color: #764ba2;">ส่งข้อความหาเรา</h3>
+                <form>
+                    <div class="form-group">
+                        <label>ชื่อ-นามสกุล</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>อีเมล</label>
+                        <input type="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>เบอร์โทรศัพท์</label>
+                        <input type="tel">
+                    </div>
+                    <div class="form-group">
+                        <label>ข้อความ</label>
+                        <textarea rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="cta-button" style="width: 100%;">ส่งข้อความ</button>
+                </form>
+                
+                <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #eee;">
+                    <h4 style="color: #764ba2; margin-bottom: 1rem;">ข้อมูลการติดต่อ</h4>
+                    <p>📍 123 ถนนสุขุมวิท แขวงคลองตัน เขตวัฒนา กรุงเทพฯ 10110</p>
+                    <p>📞 02-123-4567 | 📱 081-234-5678</p>
+                    <p>📧 info@timezone.co.th</p>
+                    <p>⏰ เปิดทำการ: จันทร์-อาทิตย์ 10:00-20:00 น.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal สำหรับดูรายละเอียดนาฬิกา -->
+    <div id="watchModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลนาฬิกาแต่ละรุ่น
+        const watchData = {
+            watch1: {
+                name: "Rolex Submariner",
+                price: "฿285,000",
+                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600",
+                description: "นาฬิกาดำน้ำระดับมืออาชีพจาก Rolex ที่ได้รับการยอมรับจากนักประดาน้ำทั่วโลก",
+                specs: [
+                    "ตัวเรือน: สแตนเลสสตีล 904L",
+                    "ขนาด: 40mm",
+                    "กันน้ำ: 300 เมตร",
+                    "ระบบ: Automatic",
+                    "พาวเวอร์รีเซิฟ: 70 ชั่วโมง",
+                    "รับประกัน: 5 ปี"
+                ]
+            },
+            watch2: {
+                name: "Omega Speedmaster",
+                price: "฿195,000",
+                image: "https://images.unsplash.com/photo-1594576662277-4a8b88b7509a?w=600",
+                description: "นาฬิกาโครโนกราฟในตำนาน ที่เป็นนาฬิกาเรือนแรกที่ไปถึงดวงจันทร์",
+                specs: [
+                    "ตัวเรือน: สแตนเลสสตีล",
+                    "ขนาด: 42mm",
+                    "กันน้ำ: 50 เมตร",
+                    "ระบบ: Manual Wind",
+                    "ฟังก์ชัน: Chronograph",
+                    "รับประกัน: 2 ปี"
+                ]
+            },
+            watch3: {
+                name: "TAG Heuer Carrera",
+                price: "฿145,000",
+                image: "https://images.unsplash.com/photo-1548068890-4f099d7bb1a3?w=600",
+                description: "นาฬิกาสปอร์ตหรูที่ได้แรงบันดาลใจจากโลกของการแข่งรถ",
+                specs: [
+                    "ตัวเรือน: สแตนเลสสตีล",
+                    "ขนาด: 41mm",
+                    "กันน้ำ: 100 เมตร",
+                    "ระบบ: Automatic",
+                    "ฟังก์ชัน: Chronograph",
+                    "รับประกัน: 2 ปี"
+                ]
+            },
+            watch4: {
+                name: "Seiko Prospex",
+                price: "฿25,000",
+                image: "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?w=600",
+                description: "นาฬิกาดำน้ำจากญี่ปุ่น ที่มีคุณภาพเยี่ยมในราคาที่เข้าถึงได้",
+                specs: [
+                    "ตัวเรือน: สแตนเลสสตีล",
+                    "ขนาด: 45mm",
+                    "กันน้ำ: 200 เมตร",
+                    "ระบบ: Automatic",
+                    "ฟีเจอร์: Solar Power",
+                    "รับประกัน: 2 ปี"
+                ]
+            },
+            watch5: {
+                name: "Apple Watch Ultra",
+                price: "฿32,900",
+                image: "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=600",
+                description: "สมาร์ทวอทช์ระดับพรีเมี่ยมที่ออกแบบมาเพื่อการผจญภัยและการออกกำลังกาย",
+                specs: [
+                    "หน้าจอ: Retina 49mm",
+                    "วัสดุ: ไทเทเนียม",
+                    "กันน้ำ: 100 เมตร",
+                    "GPS: Built-in",
+                    "แบตเตอรี่: 60 ชั่วโมง",
+                    "รับประกัน: 1 ปี"
+                ]
+            },
+            watch6: {
+                name: "Casio G-Shock",
+                price: "฿8,500",
+                image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600",
+                description: "นาฬิกาดิจิทัลที่มีความแกร่งและทนทาน เหมาะสำหรับการใช้งานหนัก",
+                specs: [
+                    "วัสดุ: เรซิ่นแกร่ง",
+                    "ขนาด: 48mm",
+                    "กันน้ำ: 200 เมตร",
+                    "ระบบ: Digital",
+                    "ฟีเจอร์: Shock Resistant",
+                    "รับประกัน: 1 ปี"
+                ]
+            }
+        };
+
+        // ฟังก์ชันสำหรับเปลี่ยนหน้า
+        function showPage(pageId) {
+            // ซ่อนหน้าทั้งหมด
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // แสดงหน้าที่เลือก
+            document.getElementById(pageId).classList.add('active');
+            
+            // อัปเดต navigation
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // ฟังก์ชันเปิด modal
+        function openModal(watchId) {
+            const watch = watchData[watchId];
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.innerHTML = `
+                <h2 style="color: #764ba2; margin-bottom: 1rem;">${watch.name}</h2>
+                <img src="${watch.image}" alt="${watch.name}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 15px; margin-bottom: 1rem;">
+                <p style="font-size: 1.5rem; color: #e74c3c; font-weight: bold; margin-bottom: 1rem;">${watch.price}</p>
+                <p style="line-height: 1.6; margin-bottom: 2rem;">${watch.description}</p>
+                
+                <h3 style="color: #764ba2; margin-bottom: 1rem;">รายละเอียดสินค้า</h3>
+                <ul style="list-style: none; padding: 0;">
+                    ${watch.specs.map(spec => `<li style="padding: 0.5rem; background: #f8f9fa; margin-bottom: 0.5rem; border-radius: 8px; border-left: 4px solid #764ba2;">• ${spec}</li>`).join('')}
+                </ul>
+                
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button class="cta-button" style="margin-right: 1rem;" onclick="addToCart('${watchId}')">เพิ่มในตะกร้า</button>
+                    <button class="cta-button" style="background: linear-gradient(45deg, #28a745, #20c997);" onclick="buyNow('${watchId}')">ซื้อทันที</button>
+                </div>
+            `;
+            
+            document.getElementById('watchModal').style.display = 'block';
+        }
+
+        // ฟังก์ชันปิด modal
+        function closeModal() {
+            document.getElementById('watchModal').style.display = 'none';
+        }
+
+        // ฟังก์ชันเพิ่มสินค้าในตะกร้า
+        function addToCart(watchId) {
+            alert('เพิ่ม ' + watchData[watchId].name + ' ในตะกร้าเรียบร้อย!');
+            closeModal();
+        }
+
+        // ฟังก์ชันซื้อทันที
+        function buyNow(watchId) {
+            alert('กำลังดำเนินการสั่งซื้อ ' + watchData[watchId].name);
+            closeModal();
+        }
+
+        // ปิด modal เมื่อคลิกนอกพื้นที่
+        window.onclick = function(event) {
+            const modal = document.getElementById('watchModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // เอฟเฟ็กต์ navbar เมื่อ scroll
+        window.onscroll = function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.pageYOffset > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.boxShadow = '0 2px 30px rgba(0,0,0,0.15)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+            }
+        }
+
+        // เอนิเมชันเมื่อ load หน้า
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.watch-card, .feature');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.animation = `fadeInUp 0.6s ease forwards`;
+                }, index * 100);
+            });
+        });
+
+        // การจัดการฟอร์มติดต่อ
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.querySelector('#contact form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('ขอบคุณสำหรับข้อความของคุณ! เราจะติดต่อกลับโดยเร็วที่สุด');
+                    this.reset();
+                });
+            }
+        });
+
+        // เพิ่มเอฟเฟ็กต์หิมะตกสำหรับความสวยงาม
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.innerHTML = '❄';
+            snowflake.style.position = 'fixed';
+            snowflake.style.top = '-10px';
+            snowflake.style.left = Math.random() * 100 + '%';
+            snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
+            snowflake.style.color = 'rgba(255, 255, 255, 0.8)';
+            snowflake.style.pointerEvents = 'none';
+            snowflake.style.zIndex = '999';
+            snowflake.style.animation = `fall ${Math.random() * 5 + 5}s linear forwards`;
+            
+            document.body.appendChild(snowflake);
+            
+            setTimeout(() => {
+                snowflake.remove();
+            }, 10000);
+        }
+
+        // สร้างหิมะตกทุก ๆ 3 วินาที
+        setInterval(createSnowflake, 3000);
+
+        // เพิ่ม CSS สำหรับเอนิเมชันหิมะตก
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                from {
+                    transform: translateY(-100vh) rotate(0deg);
+                }
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // เพิ่มเอฟเฟ็กต์เสียงเมื่อคลิกปุ่ม
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('cta-button') || e.target.classList.contains('nav-link')) {
+                // สร้างเสียง tick เบา ๆ
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTuM4NrCdSYAjQ==');
+                audio.volume = 0.1;
+                audio.play().catch(() => {});
+            }
+        });
+    </script>
+</body>
+</html>
